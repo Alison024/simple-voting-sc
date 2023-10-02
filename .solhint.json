@@ -20,6 +20,5 @@
     "state-visibility": "error",
     "compiler-version": "off",
     "not-rely-on-time": "off"
-  },
-  "plugins": ["prettier"]
+  }
 }
