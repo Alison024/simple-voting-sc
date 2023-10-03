@@ -138,10 +138,10 @@ describe("SimpleVoting", async () => {
       ]);
       expect(votingDataObj[5].length).to.be.equal(optionsCount);
       expect(votingDataObj[5]).to.be.deep.equal([0, 0, 0, 0]);
-      expect(await voting.getOptionByIndex(0,1)).to.be.equal(options[0]);
-      expect(await voting.getOptionByIndex(0,2)).to.be.equal(options[1]);
-      expect(await voting.getOptionByIndex(0,3)).to.be.equal(options[2]);
-      expect(await voting.getOptionByIndex(0,4)).to.be.equal("disagree");
+      expect(await voting.getOptionByIndex(0, 1)).to.be.equal(options[0]);
+      expect(await voting.getOptionByIndex(0, 2)).to.be.equal(options[1]);
+      expect(await voting.getOptionByIndex(0, 3)).to.be.equal(options[2]);
+      expect(await voting.getOptionByIndex(0, 4)).to.be.equal("disagree");
     });
   });
   describe("vote", async () => {
