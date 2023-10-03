@@ -58,6 +58,8 @@ interface ISimpleVoting {
   error InvalidStartDate();
   /// @notice Throws if passed voting duration equals to 0.
   error InvalidVotingDuration();
+  /// @notice Throws if owner tries to create voting with zero options.
+  error ZeroOptions();
   /// @notice Throws if voter tries to revoke vote without vote.
   error VoteNotExist();
   /// @notice Throws if Voting with passed votingId doesn't exist.

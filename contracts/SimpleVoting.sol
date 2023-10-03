@@ -26,7 +26,7 @@ contract SimpleVoting is Ownable, ISimpleVoting {
   }
 
   modifier onlyExistingVoting(uint256 _votingId) {
-    if (isVotingExist(_votingId)) {
+    if (!isVotingExist(_votingId)) {
       revert InvalidVoting();
     }
     _;
@@ -105,9 +105,12 @@ contract SimpleVoting is Ownable, ISimpleVoting {
     if (_votingDuration == 0) {
       revert InvalidVotingDuration();
     }
+    if (_options.length == 0) {
+      revert ZeroOptions();
+    }
     uint256 votingId = _votingCounter;
     _votingCounter++;
-    uint64 votingEndTimestamp = uint64(block.timestamp) + _votingDuration;
+    uint64 votingEndTimestamp = _votingStartTimestamp + _votingDuration;
     Voting storage voting = _votings[votingId];
     voting.isCreated = true;
     voting.votingStartTimestamp = _votingStartTimestamp;
@@ -118,9 +121,9 @@ contract SimpleVoting is Ownable, ISimpleVoting {
       voting.options[optionsCounter] = _options[i];
       voting.optionsIndexes.add(optionsCounter);
     }
-    // adding empty option if voter wants to disagree with all other options;
+    // adding "disagree" option if voter wants to disagree with all other options;
     optionsCounter++;
-    voting.options[optionsCounter] = "";
+    voting.options[optionsCounter] = "disagree";
     voting.optionsIndexes.add(optionsCounter);
     emit AddedNewVoting(votingId, _votingStartTimestamp, votingEndTimestamp, _options);
   }
@@ -165,27 +168,23 @@ contract SimpleVoting is Ownable, ISimpleVoting {
   **/
   function getVotingData(
     uint256 _votingId
-  )
-    external
-    view
-    returns (
-      uint64 startDate,
-      uint64 endDate,
-      uint256 voteAmount,
-      uint256[] memory optionsIndexes,
-      string[] memory options,
-      uint256[] memory votes
-    )
-  {
+  ) external view returns (uint64, uint64, uint256, uint256[] memory, string[] memory, uint256[] memory) {
+    uint64 startDate;
+    uint64 endDate;
+    uint256 voteAmount;
     Voting storage voting = _votings[_votingId];
     startDate = voting.votingStartTimestamp;
     endDate = voting.votingEndTimestamp;
     voteAmount = voting.votesTotalAmount;
-    optionsIndexes = voting.optionsIndexes.values();
+    uint256[] memory optionsIndexes = voting.optionsIndexes.values();
+    uint256 optionsAmount = optionsIndexes.length;
+    string[] memory options = new string[](optionsAmount);
+    uint256[] memory votes = new uint256[](optionsAmount);
     for (uint256 i; i < optionsIndexes.length; i++) {
       options[i] = voting.options[optionsIndexes[i]];
       votes[i] = voting.optionVotesAmount[optionsIndexes[i]];
     }
+    return (startDate, endDate, voteAmount, optionsIndexes, options, votes);
   }
 
   /**
@@ -204,6 +203,7 @@ contract SimpleVoting is Ownable, ISimpleVoting {
       if (maxVotes < votesAmount) {
         wonOptionIndex = optionIndexes[i];
         haveMax = true;
+        maxVotes = votesAmount;
       } else if (maxVotes == votesAmount) {
         haveMax = false;
       }
