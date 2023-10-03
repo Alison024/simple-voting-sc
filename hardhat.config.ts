@@ -7,7 +7,6 @@ import { HardhatUserConfig } from "hardhat/config";
 dotenv.config();
 
 const config: HardhatUserConfig = {
-  defaultNetwork: "swisstronik",
   solidity: {
     version: "0.8.19",
     settings: {
